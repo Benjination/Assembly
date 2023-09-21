@@ -4,4 +4,5 @@ These programs are written for 32-bit ARM architecture and will not run on other
 
 
 To Compile in terminal: gcc -o Arm32 ARM32.c AssemFunc.s
+
 To Run after Compile: ./Arm32
