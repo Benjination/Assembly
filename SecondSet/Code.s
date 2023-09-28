@@ -26,7 +26,7 @@ StrLenSpec: //Finds the length of part of a string to a specific letter
 //R3 count
 MOV R3, #0 //Moves Zero into R2
 Loop:
-    LDRSB R2, [R0, R3] //Load a character, Adds R1 to R0 (Moves bit right by the "Offset" in R1)
+    LDRSB R2, [R0, R3] //Load a character, Adds R1 to R0 (Moves bit right by the "Offset" in R3)
     CMP R1, R2     //Check to see if it's zero
     ADD R3, R3, #1 //Adds one byte to R1 to move the address by one byte. 
     BNE Loop     //If the branch is not zero, repeat. When string runs out of letters, Branch is equal to 0. No loop
