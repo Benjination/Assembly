@@ -24,12 +24,9 @@ LOOP:
     POP {R4}             //Removes access to R4
     BX LR                //Return to C program
 FAIL:
-    MOVNE R0, #0         //If they are not equal, R0 is becomes = 0.
+    MOV R0, #0           //R0 is becomes = 0.
     POP {R4}             //Removes access to R4
     BX LR                //Returns to C
-
-    
-
 
 strConcatenate:
 
