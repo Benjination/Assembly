@@ -40,6 +40,7 @@ StrLenSpecInt: //Finds the length of part of a string to a specific letter
 //R3 count
 //R4 iteration
 PUSH {R4} //Pushes R4 onto the stack LIFO
+MOV R3, R0
 MOV R3, #0 //Moves Zero into R2
 Loop:           //Exit conditions "Finds nth number of char in string", "Find End of String"
     LDRSB R4, [R0, R3] //Load a character, Adds R1 to R0 (Moves bit right by the "Offset" in R1) Puts in R4
