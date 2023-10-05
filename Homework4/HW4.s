@@ -32,26 +32,30 @@ FAIL:
     BX LR                //Returns to C
 
 strConcatenate:
-    LDRSB R2, [R0], #1
-    CMP R2, #0
-    BNE loop1
-    SUB R0, R0, #1
-loop2:
-    LDRSB R2, [R1], #1
-    STRB R2, [R0], #1
-    CMP R2, #0
-    BNE loop2
-    BX LR
+//Ro=Address of first string, R1= Address of second String, R2=Character to add to result string
+    LDRSB R2, [R0], #1    //Loads the first symbol of the string in R0 into R2 and post iterates R0 by 1. 
+    CMP R2, #0            //Checks to see if R2 is at the end of the string
+    BNE strConcatenate    //If it is not the end of the string, Loop strConcatenate
+    SUB R0, R0, #1        //Subtract 1 from R0 and then put the result in R0, places R0 address at null terminator
+loop2:                    //Continues when first string is entirely spent.
+    LDRSB R2, [R1], #1    //Loads first letter of second string into R2 and post iterates R1 by 1 (Moves to next letter in string)
+    STRB R2, [R0], #1     //Stores the information in R2 into the address at R0 and then post iterates to move to next symbol.
+    CMP R2, #0            //Compares R2 to 0 to see if we are at the end of the second string
+    BNE loop2             //If it is not at the end, Go back to Loop 2
+    BX LR                 //Return to C
 
-leftString:
-    MOV R4, #0
-loopl:
-    LDRSB R3, [R1, R4]
+leftString:               //
+//R0=address of string out, R1=address of string in, R2= Length of string in, R3=Symbol to be added to , R4= Counter
+    PUSH {R4}
+    MOV R4, #0            //Sets R4 to 0
+loopl:                    //
+    LDRSB R3, [R1, R4]    //
     ADD R4, R4, #1
     STRB R3, [R0], #1
     SUB R2, R2, #1
     CMP R2, #0
     BNE loopl
+    POP {R4}
     BX LR
 
 decimalStringToInt16:
@@ -107,5 +111,3 @@ error1:
     MOV R0, #-1
 loopEnd1:
     BX LR
-
-
