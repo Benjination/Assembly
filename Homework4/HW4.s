@@ -15,9 +15,9 @@ isStrEqual:   //Determines if two strings are the same
     PUSH {R4}            //Gives access to R4
     MOV R4, #0           //R4 will be iterator, and is set to zero 
 LOOP:
-    LDRSB R2, [R0, R3]   //Loads first symbol of Str1 into R2, displaced by R4
+    LDRSB R2, [R0, R4]   //Loads first symbol of Str1 into R2, displaced by R4
         //Could use post increment here instead: LDRSB R2, [R0], #1
-    LDRSB R3, [R1, R3]   //Loads first symbol of Str2 into R3, displaced by R4
+    LDRSB R3, [R1, R4]   //Loads first symbol of Str2 into R3, displaced by R4
     CMP R2, R3           //Compares first two symbols
     BNE FAIL             //Strings are not equal, jump to Fail label
     CMP R3, #0           //Tests if symbol in R3 is NULL terminator indicating end of string
@@ -44,27 +44,29 @@ loop2:                    //Continues when first string is entirely spent.
     BNE loop2             //If it is not at the end, Go back to Loop 2
     BX LR                 //Return to C
 
-leftString:               //
+leftString:               //Moves part of string from one location in memory to a different location
 //R0=address of string out, R1=address of string in, R2= Length of string in, R3=Symbol to be added to , R4= Counter
     PUSH {R4}
     MOV R4, #0            //Sets R4 to 0
-loopl:                    //
-    LDRSB R3, [R1, R4]    //
-    ADD R4, R4, #1
-    STRB R3, [R0], #1
-    SUB R2, R2, #1
-    CMP R2, #0
-    BNE loopl
-    POP {R4}
-    BX LR
+loopl:                    //ends loop when string is entirely consumed
+    LDRSB R3, [R1, R4]    //Loads char of string in into R3 offset by R4
+    ADD R4, R4, #1        //Iterates counter by 1
+    STRB R3, [R0], #1     //Stores R3 into first memory space in string out, and post increments R0 by one
+    SUB R2, R2, #1        //Reduces strlen of strin by 1
+    CMP R2, #0            //Checks if we are at the end of string in
+    BNE loopl             //If we are not at the end, loop
+    POP {R4}              //resores original status to R4, removes from stack
+    BX LR                 //Returns to C
 
-decimalStringToInt16:
-    MOV R1, R0
-    MOV R0, #0
-    MOV R2, #1
-    MOV R4, #10
+decimalStringToInt16:     //Converts string into 16 bit integer
+//R0 = address of String passed into function, then 0, R1= Space to hold String, R2= Holds number 1
+//R3 = Holds char to be converted, R4= Holds number 10
+    MOV R1, R0            //Moves information in R0 into R1
+    MOV R0, #0            //Sets R0 to zero
+    MOV R2, #1            //Sets R2 to 1
+    MOV R4, #10           //Sets R4 to 10
 dloop:
-    LDRSB R3, [R1], #1
+    LDRSB R3, [R1], #1    //
     CMP R3, #0
     BEQ loopEnd
     CMP R3, #48
