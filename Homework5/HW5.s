@@ -34,10 +34,10 @@ dotpS32:  // returns the dot product of the values in the arrays (x and y) conta
     loop_start:           //exits loop when decrement count reaches zero
         CMP r1, #0        //Checks to see if integer array is empty
         BEQ exit          //If there are no integers in array, returns 0
-        ldr r3, [r3], #4  //Loads integer from intarray1 into reg3, post iterates 4 bytes (sizeof int)
-        ldr r4, [r1], #4  //Loads integer from intarray2 into reg4, moves to next int
-        mul r3, r3, r4    //Multiplies two integers selected from the arrays, places in R3
-        add r0, r0, r3    //Adds product to running sum
+        LDR r3, [r3], #4  //Loads integer from intarray1 into reg3, post iterates 4 bytes (sizeof int)
+        LDR r4, [r1], #4  //Loads integer from intarray2 into reg4, moves to next int
+        MUL r3, r3, r4    //Multiplies two integers selected from the arrays, places in R3
+        ADD r0, r0, r3    //Adds product to running sum
         SUB R2, R2, #1    //Decrement counter by 1
         CMP R2, #0        //Compare counter to 0
         BNE loop_start    //If counter has not reached zero, jump to loop
@@ -45,24 +45,31 @@ dotpS32:  // returns the dot product of the values in the arrays (x and y) conta
         POP {R4}           //Restores Register 4 to original conditions 
         BX LR              //Returns to C Program
 
-/*
-countAboveLimit:
-    push {lr}           ; save the return address
-    mov r2, #0          ; initialize the count to 0
-    loop_start:
-        cmp r1, #0      ; check if count is 0
-        beq loop_end
-        ldr r3, [r0], #4 ; load x[i] and increment the pointer
-        cmp r3, r1       ; compare x[i] with limit
-        ble loop_start   ; if x[i] <= limit, continue loop
-        add r2, r2, #1   ; if x[i] > limit, increment count
-        subs r1, r1, #1  ; decrement count
-        b loop_start
-    loop_end:
-        mov r0, r2       ; move count to r0
-    pop {pc}            ; return
-    BX LR
 
+countAboveLimit:
+//Returns single 32 bit integer
+//(const int32_t x[], int32_t limit, uint32_t count)
+//R0 = integer array(later count of numbers greater thsn delim), R1= Delimiter (Number to compare) 
+//R2 = Number of integers in array, r3=move array here, r4= number to be compared
+//returns number of values in the array (x) containing count entries that are > limit
+    PUSH {R4}              //Grants access to register 4
+    MOV R3, R0             //Moves int array from R0 to R3
+    mov R0, #0             //Initializes count to zero
+    loop_start:            //exit loop when count is reduced to zer0
+        cmp r2, #0         //Checks to see if there are still integers in the array
+        beq loop_end       //If there are no more integers to check, jump to loop_end
+        ldr r4, [r3], #4   //Loads first integer into register 4
+        cmp r4, r1         //Compares integer to delimiter
+        ble loop_start     //If int is less then or equal to delim, jump back to loop_start
+        add r0, r0, #1     //if int is larger, increase counter by one
+        subs r2, r2, #1    //reduces number of integers left to check by one
+        b loop_start       //Always go back to loop_start
+    loop_end:              //exits the program
+    pop {R4}               //Restore R4 to original conditions
+    BX LR                  //Returns to C program
+
+
+/*
 findCityAligned:
     push {lr}           ; save the return address
     mov r2, #0          ; initialize the index to 0
