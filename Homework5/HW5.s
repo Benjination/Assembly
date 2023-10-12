@@ -32,12 +32,12 @@ dotpS32:  // returns the dot product of the values in the arrays (x and y) conta
     MOV R3, R0            //Move intarray in R0 to R3
     MOV R0, #0            //Sets running sum to 0
     loop_start:           //exits loop when decrement count reaches zero
-        CMP r1, #0        //Checks to see if integer array is empty
+        CMP R1, #0        //Checks to see if integer array is empty
         BEQ exit          //If there are no integers in array, returns 0
-        LDR r3, [r3], #4  //Loads integer from intarray1 into reg3, post iterates 4 bytes (sizeof int)
-        LDR r4, [r1], #4  //Loads integer from intarray2 into reg4, moves to next int
-        MUL r3, r3, r4    //Multiplies two integers selected from the arrays, places in R3
-        ADD r0, r0, r3    //Adds product to running sum
+        LDR R3, [R3], #4  //Loads integer from intarray1 into reg3, post iterates 4 bytes (sizeof int)
+        LDR R4, [R1], #4  //Loads integer from intarray2 into reg4, moves to next int
+        MUL R3, R3, R4    //Multiplies two integers selected from the arrays, places in R3
+        ADD R0, R0, R3    //Adds product to running sum
         SUB R2, R2, #1    //Decrement counter by 1
         CMP R2, #0        //Compare counter to 0
         BNE loop_start    //If counter has not reached zero, jump to loop
