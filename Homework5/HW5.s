@@ -83,6 +83,7 @@ findCityAligned:
         CMP r0, r2        //Checks if there are still elements in business array
         BEQ not_found     //if address of pointer finds null, jump to not found
         ldr r3, [r3], #1  //Loads string from city array and post increments to next city
+                          //This loads the entire string, so only needs to move one bit to reach next string
         ldr r4, [r1], #4  //Loads struct from business and increments to next struct
         cmp r3, r4        //compare city[i] with business[i].city
         bne loop_start    //If the string does not match the business[i].city, loop 
