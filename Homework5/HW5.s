@@ -54,38 +54,46 @@ countAboveLimit:
 //returns number of values in the array (x) containing count entries that are > limit
     PUSH {R4}              //Grants access to register 4
     MOV R3, R0             //Moves int array from R0 to R3
-    mov R0, #0             //Initializes count to zero
+    MOV R0, #0             //Initializes count to zero
     loop_start:            //exit loop when count is reduced to zer0
-        cmp r2, #0         //Checks to see if there are still integers in the array
-        beq loop_end       //If there are no more integers to check, jump to loop_end
-        ldr r4, [r3], #4   //Loads first integer into register 4
-        cmp r4, r1         //Compares integer to delimiter
-        ble loop_start     //If int is less then or equal to delim, jump back to loop_start
-        add r0, r0, #1     //if int is larger, increase counter by one
-        subs r2, r2, #1    //reduces number of integers left to check by one
-        b loop_start       //Always go back to loop_start
+        CMP r2, #0         //Checks to see if there are still integers in the array
+        BEQ loop_end       //If there are no more integers to check, jump to loop_end
+        LDR r4, [r3], #4   //Loads first integer into register 4
+        CMP r4, r1         //Compares integer to delimiter
+        BLE loop_start     //If int is less then or equal to delim, jump back to loop_start
+        ADD r0, r0, #1     //if int is larger, increase counter by one
+        SUBS r2, r2, #1    //reduces number of integers left to check by one
+        B loop_start       //Always go back to loop_start
     loop_end:              //exits the program
-    pop {R4}               //Restore R4 to original conditions
+    POP {R4}               //Restore R4 to original conditions
     BX LR                  //Returns to C program
 
 
-/*
+
 findCityAligned:
-    push {lr}           ; save the return address
-    mov r2, #0          ; initialize the index to 0
+// returns the index of the first entry in the array (business) containing count entries which matches the requested city.
+// If the city is not found, return a value of -1. You can assume that C default alignment is used for this problem.
+//(const char city[], const BUSINESS2 business[], uint32_t count)
+//R0= String containing city name(later index), R1=Struct containing Business info, R2=Number of City/Business in arrays(count)
+//r3=Move String1 here
+    PUSH {R4}             //Gives Access to Register 4
+    MOV R3, R0            //Opens R0 for count we want to return
+    MOV R0, #0            //Sets the index to Zero
     loop_start:
-        cmp r2, r1      ; check if index is equal to count
-        beq not_found   ; if index == count, city not found
-        ldr r3, [r0], #1 ; load city[i] and increment the pointer
-        ldr r4, [r1], #4 ; load business[i].city and increment the pointer
-        cmp r3, r4       ; compare city[i] with business[i].city
-        bne loop_start   ; if city[i] != business[i].city, continue loop
-        mov r0, r2       ; if city[i] == business[i].city, return index
+        CMP r0, r2        //Checks if there are still elements in business array
+        BEQ not_found     //if address of pointer finds null, jump to not found
+        ldr r3, [r3], #1  //Loads string from city array and post increments to next city
+        ldr r4, [r1], #4  //Loads struct from business and increments to next struct
+        cmp r3, r4        //compare city[i] with business[i].city
+        bne loop_start    //If the string does not match the business[i].city, loop 
+        mov r3, r2       ; if city[i] == business[i].city, return index
         pop {pc}         ; and restore the return address
     not_found:
         mov r0, #-1      ; if city not found, return -1
-    pop {pc}            ; and restore the return address
+        POP {R4}              //Restores R4 to original conditions
+        BX LR                 //Returns to C
 
+/* 
 findCityPacked:
     push {lr}           ; save the return address
     mov r2, #0          ; initialize the index to 0
