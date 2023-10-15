@@ -45,17 +45,14 @@ loop2:                    //Continues when first string is entirely spent.
     BX LR                 //Return to C
 
 leftString:               //Moves part of string from one location in memory to a different location
-//R0=address of string out, R1=address of string in, R2= Length of string in, R3=Symbol to be added to , R4= Counter
-    PUSH {R4}
-    MOV R4, #0            //Sets R4 to 0
+//R0=address of string out, R1=address of string in, R2= Length of new string, R3= Holds Symbopl to be added to new string
+         
 loopl:                    //ends loop when string is entirely consumed
-    LDRSB R3, [R1, R4]    //Loads char of string in into R3 offset by R4
-    ADD R4, R4, #1        //Iterates counter by 1
+    LDRSB R3, [R1, R2]    //Loads char of string in into R3 offset by R4
+    ADD R2, R2, #1        //Iterates counter by 1
     STRB R3, [R0], #1     //Stores R3 into first memory space in string out, and post increments R0 by one
-    SUB R2, R2, #1        //Reduces strlen of strin by 1
     CMP R2, #0            //Checks if we are at the end of string in
     BNE loopl             //If we are not at the end, loop
-    POP {R4}              //resores original status to R4, removes from stack
     BX LR                 //Returns to C
 
 decimalStringToInt16:     //Converts numeric string into 16 bit integer
