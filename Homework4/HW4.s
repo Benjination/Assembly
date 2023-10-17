@@ -23,7 +23,7 @@ LOOP:
     CMP R3, #0           //Tests if symbol in R3 is NULL terminator indicating end of string
     ADD R4, #1           //Moves counter to the next symbol in the string
     BNE LOOP             //If R3 is not zero, program loops
-    MOV R0 #1            //Strings are equal
+    MOV R0, #1            //Strings are equal
     POP {R4}             //Removes access to R4
     BX LR                //Return to C program
 FAIL:
@@ -120,3 +120,13 @@ error1:                    //Occurs when symbol in hexstring is out of range
 loopEnd1:                  //The program has worked successfully and needs to exit
     POP {R4}               //Restores R4 to original condition
     BX LR                  //Returns to C 
+
+
+
+//(Discussed in class, not part of HW, also, I don't think it's actually working)
+isNegAndOdd:              //Checks if a number is odd and negative
+    MOV R2, #0            //Sets R2 to 0
+    CMP R0, #0            //Compares number to zero
+    MOVMI R1, #1          //If R0 is less than 0, Move 1 into R1
+    AND R0, R0, R2        //If R0 is odd, moves 1 into R0, else moves 0 into R0
+    BX LR                 //Returns to C
