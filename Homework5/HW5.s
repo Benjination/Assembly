@@ -111,11 +111,41 @@ test_exit_not_found:          //Exits without finding match
 
 findCityPacked:
 /* We are just going to set the values for a Packed Array and use the above function */
-    PUSH {R4-R10}
-    MOV R5, R0	     @ backup copy of city[] to R5
-    MOV R4, R1	     @ move business[0] to R4
-    ADD R4, R4, #71  @ R0 = &business[0].city[0]
-    MOV R3, #108     @ R2 = sizeof(BUSINESS)
-    MOV R10, #0	     @ index tracker
-    CMP R2, #0	     @ check if empty array
-    B test_string
+//extern  int32_t findCityPacked (const char city[], const BUSINESS2 business[], uint32_t count);
+//R0 = String to be checked
+//R1 = Array of Businesses
+//R2 = Number of businesses in the array
+    PUSH {R4-R10}             //Gives access to any register between 4 and 10
+    MOV R5, R0	              //Clean copy of the city to be checked
+    MOV R4, R1	              //Clean copy of business in R4
+    ADD R4, R4, #71           //Moves head to city inside business array
+    MOV R3, #108              //Sets variable for packed size of array
+    MOV R10, #0	              //R10 will keep track of which Index we are on
+    CMP R2, #0	              //Checks if the array is empty
+    B test_string             //Always break to sub-function
+    test_string:
+    BEQ test_exit_not_found   //If the array is empty, break to sub-function
+    MOV R6, R4			      //It is necessary to keep R4 at the beginning of the city for when we increment by size of struct
+    //                          So this is a copy of R4 that will change as we compare strings
+    MOV R7, R0			      //Make a copy of the City name we are testing. 
+test_string_loop:             //This will test the string against the City name inside the struct
+    LDRSB R8, [R6], #1        //Loads the first letter of the City name inside the struct
+    LDRSB R9, [R7], #1        //Loads the first letter of the string
+    CMP R8, R9                //Checks if they are the same
+    BNE next_business		  //If the strings do not match, break to sub-function
+    CMP R8, #0			      //Checks for Null terminator
+    BEQ test_exit_found       //If R8 reaches null terminator without finding any difference, City is found
+    B test_string_loop        //Null Terminator not found, loop to next letter in strings
+next_business:                //Previous strings did not match, move to next struct
+    ADD R4, R4, R3			  //Add the total length of struct to R4 to move pointer to next struct 
+    ADD R10, R10, #1		  //Increment the index counter
+    SUBS R2, R2, #1			  //Decrement the number of businesses left in the array and set flags
+    B test_string             //Always break to sub-function
+test_exit_found:              //Exits with index of array
+    MOV R0, R10               //Moves index into R0 to return
+    POP {R4-R10}              //Restores R4-R10 to original conditions
+    BX  LR                    //Returns to C
+test_exit_not_found:          //Exits without finding match
+    MOV R0, #-1               //Places -1 into R0
+    POP {R4-R10}              //Restores R4-R10 to original conditions
+    BX  LR                    //Returns to C
