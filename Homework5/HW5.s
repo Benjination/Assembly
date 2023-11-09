@@ -68,46 +68,54 @@ countAboveLimit:
     POP {R4}               //Restore R4 to original conditions
     BX LR                  //Returns to C program
 
-
-
 findCityAligned:
-// returns the index of the first entry in the array (business) containing count entries which matches the requested city.
-// If the city is not found, return a value of -1. You can assume that C default alignment is used for this problem.
-//(const char city[], const BUSINESS2 business[], uint32_t count)
-//R0= String containing city name(later index), R1=Struct containing Business info, R2=Number of City/Business in arrays(count)
-//r3=Move String1 here
-    PUSH {R4}             //Gives Access to Register 4
-    MOV R3, R0            //Opens R0 for count we want to return
-    MOV R0, #0            //Sets the index to Zero
-    loop_start:
-        CMP r0, r2        //Checks if there are still elements in business array
-        BEQ not_found     //if address of pointer finds null, jump to not found
-        ldr r3, [r3], #1  //Loads string from city array and post increments to next city
-                          //This loads the entire string, so only needs to move one bit to reach next string
-        ldr r4, [r1], #4  //Loads struct from business and increments to next struct
-        cmp r3, r4        //compare city[i] with business[i].city
-        bne loop_start    //If the string does not match the business[i].city, loop 
-        mov r3, r2       ; if city[i] == business[i].city, return index
-        pop {pc}         ; and restore the return address
-    not_found:
-        mov r0, #-1      ; if city not found, return -1
-        POP {R4}              //Restores R4 to original conditions
-        BX LR                 //Returns to C
+//int32_t findCityAligned (const char city[], const BUSINESS2 business[], uint32_t count)
+//R0 = City
+//R1 = Business Array
+//R2 = Number of Businesses in array
+//R4 = Address of Business array
+//R5 = City
+    PUSH {R4-R10}
+    MOV R5, R0	     //Moves City name into R5 "Clean Copy"
+    MOV R4, R1	     //Move the address of 1st business into R4
+    ADD R4, R4, #72  //Move head to address of city in first business array
+    MOV R3, #112     //Create a variable equal to the size of the business array
+    MOV R10, #0	     //R10 will hold the Index until we are ready to return the index to C
+    CMP R2, #0	     //Check if the array is empty
+test_string:
+    BEQ test_exit_not_found   //If the array is empty, break to sub-function
+    MOV R6, R4			      //It is necessary to keep R4 at the beginning of the city for when we increment by size of struct
+    //                          So this is a copy of R4 that will change as we compare strings
+    MOV R7, R0			      //Make a copy of the City name we are testing. 
+test_string_loop:             //This will test the string against the City name inside the struct
+    LDRSB R8, [R6], #1        //Loads the first letter of the City name inside the struct
+    LDRSB R9, [R7], #1        //Loads the first letter of the string
+    CMP R8, R9                //Checks if they are the same
+    BNE next_business		  //If the strings do not match, break to sub-function
+    CMP R8, #0			      //Checks for Null terminator
+    BEQ test_exit_found       //If R8 reaches null terminator without finding any difference, City is found
+    B test_string_loop        //Null Terminator not found, loop to next letter in strings
+next_business:                //Previous strings did not match, move to next struct
+    ADD R4, R4, R3			  //Add the total length of struct to R4 to move pointer to next struct 
+    ADD R10, R10, #1		  //Increment the index counter
+    SUBS R2, R2, #1			  //Decrement the number of businesses left in the array and set flags
+    B test_string             //Always break to sub-function
+test_exit_found:              //Exits with index of array
+    MOV R0, R10               //Moves index into R0 to return
+    POP {R4-R10}              //Restores R4-R10 to original conditions
+    BX  LR                    //Returns to C
+test_exit_not_found:          //Exits without finding match
+    MOV R0, #-1               //Places -1 into R0
+    POP {R4-R10}              //Restores R4-R10 to original conditions
+    BX  LR                    //Returns to C
 
-/* 
 findCityPacked:
-    push {lr}           ; save the return address
-    mov r2, #0          ; initialize the index to 0
-    loop_start:
-        cmp r2, r1      ; check if index is equal to count
-        beq not_found   ; if index == count, city not found
-        ldrb r3, [r0], #1 ; load city[i] and increment the pointer
-        ldr r4, [r1], #8 ; load business[i].city and increment the pointer
-        cmp r3, r4       ; compare city[i] with business[i].city
-        bne loop_start   ; if city[i] != business[i].city, continue loop
-        mov r0, r2       ; if city[i] == business[i].city, return index
-        pop {pc}         ; and restore the return address
-    not_found:
-        mov r0, #-1      ; if city not found, return -1
-    pop {pc}            ; and restore the return address
-*/
+/* We are just going to set the values for a Packed Array and use the above function */
+    PUSH {R4-R10}
+    MOV R5, R0	     @ backup copy of city[] to R5
+    MOV R4, R1	     @ move business[0] to R4
+    ADD R4, R4, #71  @ R0 = &business[0].city[0]
+    MOV R3, #108     @ R2 = sizeof(BUSINESS)
+    MOV R10, #0	     @ index tracker
+    CMP R2, #0	     @ check if empty array
+    B test_string
